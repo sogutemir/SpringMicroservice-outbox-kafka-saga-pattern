@@ -3,48 +3,27 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>order-service</artifactId>
+        <artifactId>food-ordering-system</artifactId>
         <groupId>com.food.ordering.system</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>order-container</artifactId>
-
-    <properties>
-
-    </properties>
+    <artifactId>customer-service</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>com.food.ordering.system</groupId>
-            <artifactId>order-domain-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.food.ordering.system</groupId>
-            <artifactId>order-application-service</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.food.ordering.system</groupId>
-            <artifactId>order-application</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.food.ordering.system</groupId>
-            <artifactId>order-dataaccess</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.food.ordering.system</groupId>
-            <artifactId>order-messaging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.food.ordering.system</groupId>
-            <artifactId>common-dataaccess</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -54,7 +33,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <image>
-                        <name>${project.groupId}/order.service:${project.version}</name>
+                        <name>${project.groupId}/customer.service:${project.version}</name>
                     </image>
                 </configuration>
                 <executions>
@@ -68,5 +47,6 @@
             </plugin>
         </plugins>
     </build>
+
 
 </project>
