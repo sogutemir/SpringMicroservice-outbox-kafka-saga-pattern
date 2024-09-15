@@ -23,6 +23,10 @@ public class Order extends AggregateRoot<OrderId> {
     private OrderStatus orderStatus;
     private List<String> failureMessages;
 
+    /**
+     * Initializes the order by setting its ID, tracking ID, and status.
+     * Also initializes the order items.
+     */
     public void initializeOrder() {
         setId(new OrderId(UUID.randomUUID()));
         trackingId = new TrackingId(UUID.randomUUID());
@@ -30,12 +34,20 @@ public class Order extends AggregateRoot<OrderId> {
         initializeOrderItems();
     }
 
+    /**
+     * Validates the order by checking its initial state, total price, and items price.
+     */
     public void validateOrder() {
         validateInitialOrder();
         validateTotalPrice();
         validateItemsPrice();
     }
 
+    /**
+     * Marks the order as paid.
+     *
+     * @throws OrderDomainException if the order is not in the correct state for the pay operation
+     */
     public void pay() {
         if (orderStatus != OrderStatus.PENDING) {
             throw new OrderDomainException("Order is not in correct state for pay operation!");
@@ -43,6 +55,11 @@ public class Order extends AggregateRoot<OrderId> {
         orderStatus = OrderStatus.PAID;
     }
 
+    /**
+     * Approves the order.
+     *
+     * @throws OrderDomainException if the order is not in the correct state for the approval operation
+     */
     public void approve() {
         if(orderStatus != OrderStatus.PAID) {
             throw new OrderDomainException("Order is not in correct state for approve operation!");
@@ -50,6 +67,12 @@ public class Order extends AggregateRoot<OrderId> {
         orderStatus = OrderStatus.APPROVED;
     }
 
+    /**
+     * Initiates the cancellation of the order payment.
+     *
+     * @param failureMessages the list of failure messages
+     * @throws OrderDomainException if the order is not in the correct state for the initCancel operation
+     */
     public void initCancel(List<String> failureMessages) {
         if (orderStatus != OrderStatus.PAID) {
             throw new OrderDomainException("Order is not in correct state for initCancel operation!");
@@ -58,6 +81,12 @@ public class Order extends AggregateRoot<OrderId> {
         updateFailureMessages(failureMessages);
     }
 
+    /**
+     * Cancels the order.
+     *
+     * @param failureMessages the list of failure messages
+     * @throws OrderDomainException if the order is not in the correct state for the cancel operation
+     */
     public void cancel(List<String> failureMessages) {
         if (!(orderStatus == OrderStatus.CANCELLING || orderStatus == OrderStatus.PENDING)) {
             throw new OrderDomainException("Order is not in correct state for cancel operation!");
@@ -66,6 +95,11 @@ public class Order extends AggregateRoot<OrderId> {
         updateFailureMessages(failureMessages);
     }
 
+    /**
+     * Updates the failure messages for the order.
+     *
+     * @param failureMessages the list of failure messages to be added
+     */
     private void updateFailureMessages(List<String> failureMessages) {
         if (this.failureMessages != null && failureMessages != null) {
             this.failureMessages.addAll(failureMessages.stream().filter(message -> !message.isEmpty()).toList());
@@ -75,18 +109,33 @@ public class Order extends AggregateRoot<OrderId> {
         }
     }
 
+    /**
+     * Validates the initial state of the order.
+     *
+     * @throws OrderDomainException if the order is not in the correct state for initialization
+     */
     private void validateInitialOrder() {
         if (orderStatus != null || getId() != null) {
             throw new OrderDomainException("Order is not in correct state for initialization!");
         }
     }
 
+    /**
+     * Validates the total price of the order.
+     *
+     * @throws OrderDomainException if the total price is not greater than zero
+     */
     private void validateTotalPrice() {
         if (price == null || !price.isGreaterThanZero()) {
             throw new OrderDomainException("Total price must be greater than zero!");
         }
     }
 
+    /**
+     * Validates the price of each item in the order and the total price of the order.
+     *
+     * @throws OrderDomainException if the total price of the items does not match the total price of the order
+     */
     private void validateItemsPrice() {
         Money orderItemsTotal = items.stream().map(orderItem -> {
             validateItemPrice(orderItem);
@@ -99,6 +148,12 @@ public class Order extends AggregateRoot<OrderId> {
         }
     }
 
+    /**
+     * Validates the price of an individual order item.
+     *
+     * @param orderItem the order item to be validated
+     * @throws OrderDomainException if the price of the order item is not valid
+     */
     private void validateItemPrice(OrderItem orderItem) {
         if (!orderItem.isPriceValid()) {
             throw new OrderDomainException("Order item price: " + orderItem.getPrice().getAmount() +
@@ -106,6 +161,9 @@ public class Order extends AggregateRoot<OrderId> {
         }
     }
 
+    /**
+     * Initializes the order items by setting their IDs.
+     */
     private void initializeOrderItems() {
         long itemId = 1;
         for (OrderItem orderItem: items) {
