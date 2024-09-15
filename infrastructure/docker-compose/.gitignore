@@ -1,0 +1,6 @@
+volumes/kafka/broker-1/
+volumes/kafka/broker-2/
+volumes/kafka/broker-3/
+
+volumes/zookeeper/data/
+volumes/zookeeper/transactions/
