@@ -1,10 +1,10 @@
-package com.food.ordering.system.orderapplication;
+package com.food.ordering.system.commonapplication;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class OrderApplicationTests {
+class CommonApplicationTests {
 
     @Test
     void contextLoads() {
