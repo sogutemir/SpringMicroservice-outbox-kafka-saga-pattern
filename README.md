@@ -12,12 +12,12 @@
 - [Project Structure](#project-structure)
 - [Installation and Setup](#installation-and-setup)
 - [Usage](#usage)
-  - [API Endpoints](#api-endpoints)
-  - [Sample Request](#sample-request)
+    - [API Endpoints](#api-endpoints)
+    - [Sample Request](#sample-request)
 - [Data Flow](#data-flow)
 - [Development Guidelines](#development-guidelines)
-  - [Adding a New Feature](#adding-a-new-feature)
-  - [Testing](#testing)
+    - [Adding a New Feature](#adding-a-new-feature)
+    - [Testing](#testing)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -35,6 +35,7 @@ _This README will be continuously updated to reflect the latest changes and impr
 - **Restaurant Interface**: Restaurants can approve or reject orders.
 - **Customer Profiles**: Manage customer information and order history.
 - **Real-Time Notifications**: Updates via Apache Kafka messaging.
+- **Reliable Messaging with Outbox Pattern**: Ensures consistent and reliable message delivery between services.
 
 ## Architecture
 
@@ -43,13 +44,15 @@ The project follows the **Hexagonal Architecture (Ports and Adapters)** pattern,
 - **Domain Layer**: Contains business logic and domain entities.
 - **Application Layer**: Coordinates application activities and use cases.
 - **Infrastructure Layer**: Deals with external systems like databases and messaging.
+- **Outbox Pattern Implementation**: Ensures reliable communication between microservices by persisting messages in an outbox table in the database and then publishing them to the message broker.
 
 ## Technologies Used
 
 - **Programming Language**: Java 17
 - **Frameworks and Libraries**:
-  - Spring Boot
-  - Spring Data JPA
+    - Spring Boot
+    - Spring Data JPA
+    - Spring Transaction Management
 - **Messaging and Streaming**: Apache Kafka
 - **Database**: PostgreSQL
 - **Containerization**: Docker
@@ -62,7 +65,7 @@ The project is modularized, reflecting its microservices architecture:
 ### Common Modules
 
 - **`common`**: Shared utilities and code across microservices.
-- **`infrastructure`**: Infrastructure components like Kafka configurations.
+- **`infrastructure`**: Infrastructure components like Kafka configurations and Outbox pattern implementations.
 
 ### Microservice Modules
 
@@ -72,6 +75,7 @@ Each microservice comprises:
 - **`application`**: Application services and use cases.
 - **`dataaccess`**: Data repositories and database interactions.
 - **`messaging`**: Kafka producers and consumers.
+- **`outbox`**: Components related to the Outbox pattern for reliable message handling.
 - **`container`**: Spring Boot application entry point.
 
 ## Installation and Setup
@@ -90,19 +94,19 @@ Each microservice comprises:
    git clone https://github.com/sogutemir/FoodOrderingSystem.git
    ```
 
-1. **Navigate to the Project Directory**
+2. **Navigate to the Project Directory**
 
    ```bash
    cd FoodOrderingSystem
    ```
 
-2. **Build the Project**
+3. **Build the Project**
 
    ```bash
    mvn clean package
    ```
 
-3. **Start Docker Containers**
+4. **Start Docker Containers**
 
    Ensure that Docker is running, then start the required services:
 
@@ -112,7 +116,7 @@ Each microservice comprises:
    docker-compose -f common.yml -f zookeeper.yml up -d
    ```
 
-4. **Run Microservices**
+5. **Run Microservices**
 
    Open separate terminals for each microservice and run:
 
@@ -204,10 +208,13 @@ For detailed API documentation, refer to the [API Documentation](https://github.
 ## Data Flow
 
 1. **Order Placement**: Customer places an order via the **Order Service**.
-2. **Payment Initiation**: **Order Service** sends order details to the **Payment Service**.
-3. **Payment Confirmation**: **Payment Service** processes payment and notifies the **Order Service**.
-4. **Order Approval**: Order is forwarded to the **Restaurant Service** for approval.
-5. **Notification**: Customer receives updates on the order status.
+2. **Outbox Logging**: The **Order Service** saves the order and writes an event to the outbox table within the same transaction.
+3. **Message Dispatch**: A background process reads events from the outbox table and publishes them to **Apache Kafka**.
+4. **Payment Processing**: The **Payment Service** consumes the event from Kafka, processes the payment, and uses the Outbox pattern to communicate back.
+5. **Order Approval**: The **Restaurant Service** receives the event, approves the order, and updates the order status.
+6. **Notification**: The customer receives updates on the order status.
+
+_By utilizing the Outbox pattern, we ensure that message delivery between microservices is reliable and consistent, maintaining data integrity across services._
 
 ## Development Guidelines
 
@@ -227,11 +234,13 @@ For detailed API documentation, refer to the [API Documentation](https://github.
 
     - Add or modify repository interfaces.
     - Implement data access logic.
+    - Implement Outbox entities and repositories if necessary.
 
 4. **Messaging**
 
     - Update Kafka producers and consumers.
     - Define new topics if necessary.
+    - Ensure messages are written to the Outbox table within the same transaction as the domain event.
 
 5. **API Layer**
 
@@ -243,6 +252,7 @@ For detailed API documentation, refer to the [API Documentation](https://github.
 - **Unit Tests**: Use JUnit and Mockito.
 - **Integration Tests**: Use Testcontainers for databases and Kafka.
 - **End-to-End Tests**: Validate the complete workflow.
+- **Outbox Pattern Tests**: Ensure that events are correctly written to and read from the outbox table.
 
 ## Contributing
 
