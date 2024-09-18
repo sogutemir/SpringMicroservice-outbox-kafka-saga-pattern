@@ -1,7 +1,7 @@
 # Food Ordering System
 
 [![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.6.4-brightgreen.svg)](https://spring.io/projects/spring-boot)
+
 
 ## Table of Contents
 
